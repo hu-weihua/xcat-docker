@@ -1,10 +1,10 @@
 image: #ORGNAME#/#NAME#:#VERSION#
 manifests:
-  - image: #ORGNAME#/#NAME#:#VERSION#-x86_64
+  - image: #ORGNAME#/#NAME#:#VERSION#-x86_64#TIMESTAMP#
     platform:
       architecture: amd64
       os: linux
-  - image: #ORGNAME#/#NAME#:#VERSION#-ppc64le
+  - image: #ORGNAME#/#NAME#:#VERSION#-ppc64le#TIMESTAMP#
     platform:
       architecture: ppc64le
       os: linux

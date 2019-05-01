@@ -6,16 +6,20 @@ IMAGE=$(REGISTRY)/$(ORGNAME)/$(NAME)
 
 SHELL=/bin/bash
 BUILD_TMP=/tmp
+BUILD_DEVEL=--build-arg xcat_version=devel
 VERSION=devel
 ifeq ($(VERSION), latest)
 	STABLE_VER:=$(shell curl -s http://xcat.org/files/xcat/repos/yum/$(VERSION)/xcat-core/buildinfo|grep VERSION=|cut -d '=' -f 2)
+        WHOLE_DOCKER_BUILD_ARGS:=$(DOCKER_BUILD_ARGS)
+else
+        WHOLE_DOCKER_BUILD_ARGS:=$(DOCKER_BUILD_ARGS) $(BUILD_DEVEL)
 endif
 STABLE_VER?=$(VERSION)
 ARCH?=$(shell arch)
 ifeq ($(ARCH),i386)
 	ARCH:=x86_64
 endif
-TAG:=$(STABLE_VER)-$(ARCH)
+TAG:=$(STABLE_VER)-$(ARCH)$(TIMESTAMP)
 
 DOCKER_BUILD_CONTEXT=.
 # To build container with ubuntu, using different name and docker file
@@ -25,7 +29,7 @@ ifdef ubuntu
 endif
 DOCKER_FILE_PATH?=Dockerfile
 
-$(warning IMAGE=$(IMAGE) VERSION=$(VERSION) TAG=$(TAG))
+$(warning IMAGE=$(IMAGE) VERSION=$(VERSION) TAG=$(TAG) WHOLE_DOCKER_BUILD_ARGS=$(WHOLE_DOCKER_BUILD_ARGS))
 
 .PHONY: pre-build docker-build post-build build \
 		push pre-push do-push post-push \
@@ -44,7 +48,7 @@ post-build:
 
 docker-build:
 	@echo "INFO: building $(NAME) container (Tag=$(TAG)) ..."
-	docker build $(DOCKER_BUILD_ARGS) -t $(NAME):$(TAG) $(DOCKER_BUILD_CONTEXT) -f $(DOCKER_FILE_PATH)
+	docker build $(WHOLE_DOCKER_BUILD_ARGS) -t $(NAME):$(TAG) $(DOCKER_BUILD_CONTEXT) -f $(DOCKER_FILE_PATH)
 	#docker tag $(NAME):$(TAG) $(NAME):latest
 
 
@@ -68,7 +72,7 @@ DOCKER_BUILD_MANIFEST_TMP=$(BUILD_TMP)/xcat-$(STABLE_VER).yml
 pre-manifest:
 ifeq ($(suffix $(DOCKER_BUILD_MANIFEST)), .in)
 	@echo "generate manifest file from $(DOCKER_BUILD_MANIFEST)..."
-	@sed "s/#NAME#/${NAME}/g; s/#ORGNAME#/${ORGNAME}/g; s/#VERSION#/${STABLE_VER}/g" \
+	@sed "s/#NAME#/${NAME}/g; s/#ORGNAME#/${ORGNAME}/g; s/#VERSION#/${STABLE_VER}/g; s/#TIMESTAMP#/${TIMESTAMP}/g" \
 		$(DOCKER_BUILD_MANIFEST) > $(DOCKER_BUILD_MANIFEST_TMP)
 else
 	@cp -f ${DOCKER_BUILD_MANIFEST} ${DOCKER_BUILD_MANIFEST_TMP}
