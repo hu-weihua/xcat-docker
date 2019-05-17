@@ -44,7 +44,7 @@ post-build:
 
 docker-build:
 	@echo "INFO: building $(NAME) container (Tag=$(TAG)) ..."
-	docker build $(DOCKER_BUILD_ARGS) -t $(NAME):$(TAG) $(DOCKER_BUILD_CONTEXT) -f $(DOCKER_FILE_PATH)
+	docker build $(DOCKER_BUILD_ARGS) -v /etc/hosts:/etc/hosts -t $(NAME):$(TAG) $(DOCKER_BUILD_CONTEXT) -f $(DOCKER_FILE_PATH)
 	#docker tag $(NAME):$(TAG) $(NAME):latest
 
 
