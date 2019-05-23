@@ -21,9 +21,11 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; \
 RUN mkdir -p /xcatdata/etc/{dhcp,goconserver,xcat} && ln -sf -t /etc /xcatdata/etc/{dhcp,goconserver,xcat} && \
     mkdir -p /xcatdata/{install,tftpboot} && ln -sf -t / /xcatdata/{install,tftpboot}
 
-RUN yum install -y -q wget which &&\
+RUN yum install -y -q wget which /usr/bin/applydeltarpm &&\
     wget ${xcat_reporoot}/${xcat_version}/$([[ "devel" = "${xcat_version}" ]] && echo 'core-snap' || echo 'xcat-core')/xcat-core.repo -O /etc/yum.repos.d/xcat-core.repo && \
     wget ${xcat_reporoot}/${xcat_version}/xcat-dep/${xcat_baseos}/$(uname -m)/xcat-dep.repo -O /etc/yum.repos.d/xcat-dep.repo && \
+    if [ ${xcat_version} == "devel" ]; then sed -i -e 's|yum|yum/devel|g' /etc/yum.repos.d/xcat-dep.repo; fi && \ 
+    cat /etc/yum.repos.d/xcat-dep.repo && \
     yum install -y \
        xCAT \
        openssh-server \
