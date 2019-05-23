@@ -26,6 +26,7 @@ RUN yum install -y -q wget which /usr/bin/applydeltarpm &&\
     wget ${xcat_reporoot}/${xcat_version}/xcat-dep/${xcat_baseos}/$(uname -m)/xcat-dep.repo -O /etc/yum.repos.d/xcat-dep.repo && \
     if [ ${xcat_version} == "devel" ]; then sed -i -e 's|yum|yum/devel|g' /etc/yum.repos.d/xcat-dep.repo; fi && \ 
     cat /etc/yum.repos.d/xcat-dep.repo && \
+    yum clean all && \
     yum install -y \
        xCAT \
        openssh-server \
